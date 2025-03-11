@@ -32,9 +32,12 @@ const server = http.createServer((req, res) => {
           return val;
         }
       });
-      res.write(JSON.stringify(selectedbook));
-    }else{
-        res.write("match not found!")
+      if (selectedbook.length > 0) {
+        res.write(JSON.stringify(selectedbook));
+      } else {
+        res.write("book not found!");
+        res.statusCode = 404;
+      }
     }
   } else {
     res.statusCode = 404;
