@@ -20,26 +20,15 @@ const app = express();
 app.listen(5000, () => {
   console.log("server is UP and running!!!");
 });
+app.use(express.json());
 //routing
 app.get("/books", (req, res) => {
   res.status(200);
   res.json(books);
 });
-// app.use("/books/2",(req, res) => {
-//   res.status(200);
-//   res.send(books[1]);
-// });
-// app.use("/books/1",(req, res) => {
-//     res.status(200);
-//     res.send(books[0]);
-//   });
-//   app.use("/books/3",(req, res) => {
-//     res.status(200);
-//     res.send(books[2]);
-//   });
 app.get("/books/:id", (req, res) => {
   const bookId = parseInt(req.params.id);
-  const book = books.find((b) => b.id === bookId);
+  const book = books.find((b) =>parseInt(b.id)=== bookId);
   if (!book) {
     return res.status(404).json({ message: "Book not found" });
   }
@@ -48,3 +37,8 @@ app.get("/books/:id", (req, res) => {
 app.get((req, res) => {
   res.status(404).json("URl incorrect");
 });
+app.post("/books/add", (req, res) => {
+    const book = req.body;
+    books.push(book);
+    res.status(200).json(books); 
+  });
