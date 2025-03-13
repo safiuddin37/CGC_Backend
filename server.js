@@ -1,57 +1,43 @@
-// // console.log("welcome to backend");
+const express = require("express");
 let books = [
-  {
-    id: 1,
-    name: "css&html",
-    price: 400,
-  },
-  {
-    id: 2,
-    name: "java",
-    price: 800,
-  },
-  {
-    id: 3,
-    name: "python",
-    price: 1000,
-  },
-];
-const http = require("http");
-// console.log(http)
-const server = http.createServer((req, res) => {
-  if (req.url.includes("welcome")) {
-    res.statusCode = 200;
-    res.write("Welcome to the server");
-  } else if (req.url.includes("books")) {
-    res.statusCode = 200;
-    b = req.url.split("/");
-    bookid = parseInt(b[b.length - 1]);
-    if (req.url.includes(bookid)) {
-      let selectedbook = books.filter((val) => {
-        if (val.id === bookid) {
-          return val;
-        }
-      });
-      if (selectedbook.length > 0) {
-        res.write(JSON.stringify(selectedbook));
-      } else {
-        res.write("book not found!");
-        res.statusCode = 404;
-      }
-    }
-  } else {
-    res.statusCode = 404;
-    res.write("Not Found");
-  }
-  res.end();
+    {
+      id: 1,
+      name: "css&html",
+      price: 400,
+    },
+    {
+      id: 2,
+      name: "java",
+      price: 800,
+    },
+    {
+      id: 3,
+      name: "python",
+      price: 1000,
+    },
+  ];
+const app = express();
+app.listen(5000, () => {
+  console.log("server is UP and running!!!");
 });
-server.listen(5000, () => {
-  console.log("server is UP!!!");
+//routing
+// app.use("/books",(req, res) => {
+//     res.status(200);
+//     res.send(books);
+//   });
+app.use("/books/2",(req, res) => {
+  res.status(200);
+  res.send(books[1]);
 });
-// let str="bat"
-// if(str.includes("b")){
-//     if(str.includes("a")){
-//         console.log("a found")
-//     }
-// }
-// console.log(selectedbook);
+app.use("/books/1",(req, res) => {
+    res.status(200);
+    res.send(books[0]);
+  });
+  app.use("/books/3",(req, res) => {
+    res.status(200);
+    res.send(books[2]);
+  });
+// app.use("/books",(req, res) => {
+//     res.status(200);
+//     res.send("welcome to the books store");
+//   });
