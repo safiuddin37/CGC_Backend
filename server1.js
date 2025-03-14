@@ -22,7 +22,6 @@ app.listen(5000, () => {
 });
 app.use(express.json());
 //routing
-app.use("/api/v1/",require("./routes/routes"));
 app.get("/books", (req, res) => {
   res.status(200);
   res.json(books);
