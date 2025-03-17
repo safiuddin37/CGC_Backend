@@ -2,7 +2,28 @@ const ProductModel = require("../models/productModel");
 const { responseObjGenerator } = require("../utils/utils");
 
 const getProducts = async (req, res) => {
-  const products = await ProductModel.find();
+  const { page, pagesize } = req.params;
+  skip = (page - 1) * pagesize;
+  const data = req.body;
+  let filter = {};
+  if (data) {
+    if (data.issearch) {
+      if (data.name) {
+        filter.name = { $regex: data.name, $options: "i" }; // case-insensitive search
+      }
+      if (data.category) {
+        filter.category = { $regex: data.category, $options: "i" }; // case-insensitive search
+      }
+    }
+  }
+  const { dir, sort } = req.query;
+  console.log(req.query);
+  const products = await ProductModel.find()
+    .sort({ [sort]: dir })
+    .skip(skip)
+    .limit(pagesize);
+  // const products = await ProductModel.find().skip(skip).limit(pagesize);
+  // const products = await ProductModel.find();
   res.status(200).json(products);
 };
 
@@ -11,7 +32,11 @@ const addProduct = async (req, res) => {
     const data = req.body;
     const product = new ProductModel(data);
     await product.save();
-    let resObj = responseObjGenerator(true, "Product Added Successfully!", product);
+    let resObj = responseObjGenerator(
+      true,
+      "Product Added Successfully!",
+      product
+    );
     res.status(201).json(resObj);
   } catch (e) {
     let resObj = responseObjGenerator(false);
@@ -23,9 +48,17 @@ const updateProduct = async (req, res) => {
   try {
     const productId = req.params.id;
     const data = req.body;
-    const product = await ProductModel.findOneAndUpdate({ _id: productId }, data, { new: true });
+    const product = await ProductModel.findOneAndUpdate(
+      { _id: productId },
+      data,
+      { new: true }
+    );
     // const prd = await ProductModel.findOne({ _id: productId });
-    let resObj = responseObjGenerator(true, "Product Updated Successfully!", product);
+    let resObj = responseObjGenerator(
+      true,
+      "Product Updated Successfully!",
+      product
+    );
     res.status(200).json(resObj);
   } catch (e) {
     console.log(e);
@@ -52,7 +85,11 @@ const updateCompProduct = async (req, res) => {
       },
       { new: true }
     );
-    let resObj = responseObjGenerator(true, "Product Updated Successfully!", product);
+    let resObj = responseObjGenerator(
+      true,
+      "Product Updated Successfully!",
+      product
+    );
     res.status(200).json(resObj);
   } catch (e) {
     console.log(e);
