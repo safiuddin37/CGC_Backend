@@ -7,13 +7,17 @@ const getProducts = async (req, res) => {
   const data = req.body;
   let filter = {};
   if (data) {
-    if (data.issearch) {
-      if (data.name) {
-        filter.name = { $regex: data.name, $options: "i" }; // case-insensitive search
-      }
-      if (data.category) {
-        filter.category = { $regex: data.category, $options: "i" }; // case-insensitive search
-      }
+    if (data.isSearch) {
+      filter = {
+        $or: [
+          { name: { $regex: data.search, $options: "i" } },
+          { category: { $regex: data.search, $options: "i" } },
+        ],
+      };
+    } else {
+      filter = {
+        ...data,
+      };
     }
   }
   const { dir, sort } = req.query;

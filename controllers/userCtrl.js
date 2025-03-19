@@ -1,5 +1,5 @@
 const userModel = require("../models/userModel");
-const { responseObjGenerator } = require("../utils/utils");
+const { responseObjGenerator, hashPassword ,comparePassword } = require("../utils/utils");
 
 const getUsers = async (req, res) => {
   const users = await userModel.find();
@@ -8,13 +8,21 @@ const getUsers = async (req, res) => {
 const addUser = async (req, res) => {
   try {
     const data = req.body;
+    data.password = await hashPassword(data.password);
     const user = new userModel(data);
     await user.save();
     let resObj = responseObjGenerator(true, "User Added Successfully!", user);
     res.status(201).json(resObj);
-  } catch (e) {
-    let resObj = responseObjGenerator(false);
-    res.status(500).json(resObj);
+  } catch (err) {
+    if (err.errorResponse.errmsg.includes("duplicate key")) {
+      res
+        .status(400)
+        .json({ message: "Email Already Exists!", success: false });
+    } else {
+      res
+        .status(500)
+        .json({ message: "Internal Server Error!", success: false });
+    }
   }
 };
 const updateUser = async (req, res) => {
@@ -73,16 +81,22 @@ const deleteUser = async (req, res) => {
 const signin = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const user = await userModel
-      .findOne({ email: email, password: password })
-      .select("-password");
+    const user = await userModel.findOne({ email: email, password: password });
     if (user) {
-      let resObj = responseObjGenerator(
-        true,
-        "User Logged in Successfully!",
-        user
-      );
-      res.status(200).json(resObj);
+      const isPasswordMatches = await comparePassword(password, user.password);
+      if (isPasswordMatches) {
+        // const token = generateToken({ email, name: user.name, id: user._id, userRole: user.userRole });
+        return res.status(200).json({
+          message: "User Loggedin Successfully!",
+          success: true,
+          data: {
+            name: user.name,
+            email: user.email,
+            _id: user._id,
+            // token,
+          },
+        });
+      }
     } else {
       let resObj = responseObjGenerator(false, "Invalid Email or Password!");
       res.status(400).json(resObj);
