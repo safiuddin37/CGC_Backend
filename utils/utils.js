@@ -1,3 +1,4 @@
+const bcrypt = require("bcrypt");
 const responseObjGenerator = (success, message, data) => {
   let resObj = {};
   resObj.success = success;
